@@ -82,13 +82,52 @@
             <p>{{ message }}</p>
             {% endfor %}
             
-            <div class="tab-content">
+        <div class="tab-content">
                 <!-- Welcome Section -->
-                <div class="tab-pane fade show active" id="welcome">
-                    <h3>Welcome to UCC Apartment Selection Forms</h3>
-                    <p>Please fill out the form diligently as it will be used to generate points for apartment allocation.</p>
+            <div class="tab-pane fade show active" id="welcome">
+                <h3>Welcome to UCC Apartment Selection Forms</h3>
+                <p>Please fill out the form diligently as it will be used to generate points for apartment allocation.</p>
+
+                <!-- Section Overview -->
+                <div class="sections-overview">
+                    <div class="section-item">
+                        <img src="path/to/personal-info-icon.png" alt="Personal Information Icon" class="section-icon">
+                        <h4>Personal Information</h4>
+                        <p>This section collects your basic personal details, including your name, contact information, and the number of children you have.</p>
+                    </div>
+                    <div class="section-item">
+                        <img src="path/to/university-info-icon.png" alt="University Information Icon" class="section-icon">
+                        <h4>University Information</h4>
+                        <p>Provide details about your academic background, including your staff number, department, and date of university appointment.</p>
+                    </div>
+                    <div class="section-item">
+                        <img src="path/to/duty-info-icon.png" alt="Duty Information Icon" class="section-icon">
+                        <h4>Duty Information</h4>
+                        <p>This section captures your current status, study leave details, duty status, and the date of special duties.</p>
+                    </div>
+                    <div class="section-item">
+                        <img src="path/to/marital-info-icon.png" alt="Marital Information Icon" class="section-icon">
+                        <h4>Marital Information</h4>
+                        <p>Provide your marital status to help us understand your living situation better.</p>
+                    </div>
+                    <div class="section-item">
+                        <img src="path/to/present-accommodation-icon.png" alt="Present Accommodation Icon" class="section-icon">
+                        <h4>Present Accommodation</h4>
+                        <p>Information on your current university accommodation, including bungalow/flat number and date of occupation.</p>
+                    </div>
+                    <div class="section-item">
+                        <img src="path/to/apartment-preferences-icon.png" alt="Apartment Preferences Icon" class="section-icon">
+                        <h4>Apartment Preferences</h4>
+                        <p>Here, you can specify your apartment preferences, which will be considered during the allocation process.</p>
+                    </div>
+                </div>
+
+                <!-- Call to Action -->
+                <div class="cta-container">
                     <button type="button" class="btn btn-primary next-section" data-next="personal-info-tab">Next</button>
                 </div>
+            </div>
+
 
                 <!-- Section 1: Personal Information -->
                 <div class="tab-pane fade" id="personal-info">
