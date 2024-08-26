@@ -10,6 +10,45 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#staff_number").on('input', function() {
+                var staff_number = $(this).val();
+                if (staff_number) {
+                    $.ajax({
+                        url: "{% url 'get_buildings' %}",
+                        data: {
+                            'staff_number': staff_number
+                        },
+                        success: function(data) {
+                            var preferences = data.preferences;
+                            var container = $(".preferences-container");
+                            container.empty();  // Clear existing input fields
+                            var preferenceCount = 0;
+        
+                            if (preferences.length > 0) {
+                                container.append('<label for="preferences">Preferences (available rooms: ' + preferences.join(', ') + '):</label>');
+                                preferences.forEach(function(pref, index) {
+                                    container.append('<input type="text" class="preference-input" name="preference_' + preferenceCount + '" placeholder="Enter preference ' + (preferenceCount + 1) + '">');
+                                    preferenceCount++;
+                                });
+        
+                                $("#preference_count").val(preferenceCount);  // Update preference count
+                            } else {
+                                container.append('<p>No buildings available</p>');
+                                $("#preference_count").val(0);
+                            }
+                        }
+                    });
+                } else {
+                    $("#preferences-container").empty();
+                    $("#preference_count").val(0);
+                }
+            });
+        });
+        
+    </script>
     <div class="container mt-5">
         <!-- Navigation Sections -->
         <ul class="nav nav-pills mb-4" id="form-sections">
@@ -190,7 +229,7 @@
     </div>
 
     <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{% static 'js/custom.js' %}"></script>
