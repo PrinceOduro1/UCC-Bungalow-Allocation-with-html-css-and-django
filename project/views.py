@@ -54,7 +54,7 @@ def view_all_users(request):
                 'spouse_id': pref.application.spouse_id,
                 'duty_status': pref.application.duty_status,
                 'duty_status_type': pref.application.duty_status_type,
-                'num_of_children': pref.application,
+                'num_of_children': pref.application.num_of_children,
                 'date_of_duty': pref.application.date_of_duty,
                 'present_accommodation': pref.application.present_accommodation,
                 'preferences': []

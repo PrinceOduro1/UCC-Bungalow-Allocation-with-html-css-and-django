@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <title>View All Preferences Grouped</title>
     <style>
       body {
@@ -15,17 +14,14 @@
         flex-direction: row;
         align-items: flex-start;
       }
-
       h2 {
         text-align: center;
         margin-bottom: 20px;
         color: #333;
       }
-
       .search-container {
         margin-right: 20px;
       }
-
       .search-container input {
         padding: 8px 12px;
         font-size: 14px;
@@ -33,16 +29,13 @@
         border-radius: 4px;
         width: 200px;
       }
-
       .table-container {
         flex-grow: 1;
       }
-
       .print-container {
         text-align: right;
         margin-bottom: 10px;
       }
-
       .print-container button {
         background-color: #007bff;
         color: #fff;
@@ -52,54 +45,44 @@
         border-radius: 4px;
         cursor: pointer;
       }
-
       table {
         width: 100%;
         border-collapse: collapse;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         background-color: #fff;
       }
-
       th,
       td {
         padding: 12px 15px;
         text-align: left;
         border-bottom: 1px solid #ddd;
       }
-
       th {
         background-color: Blue;
         font-weight: bold;
         color: #fff;
       }
-
       tr:hover {
         background-color: #f8f8f8;
       }
-
       td {
         vertical-align: top;
         color: #555;
       }
-
       @media (max-width: 767px) {
         body {
           flex-direction: column;
         }
-
         .search-container {
           margin-right: 0;
           margin-bottom: 20px;
         }
-
         .search-container input {
           width: 100%;
         }
-
         table {
           font-size: 14px;
         }
-
         th,
         td {
           padding: 10px 12px;
@@ -132,26 +115,22 @@
         </thead>
         <tbody>
           {% for staff_number, details in preferences_dict.items %}
-          <tr>
-            <td rowspan="{{ details.preferences|length }}">
-              {{ staff_number }}
-            </td>
-            <td rowspan="{{ details.preferences|length }}">
-              {{ details.name }}
-            </td>
-            <td rowspan="{{ details.preferences|length }}">
-              {{ details.department }}
-            </td>
-            <td>{{ details.preferences|first }}</td>
-          </tr>
-          {% for pref in details.preferences|slice:":-1" %}
-          <tr>
-            <td>{{ pref }}</td>
-          </tr>
-          {% endfor %} {% empty %}
-          <tr>
-            <td colspan="4">No preferences available</td>
-          </tr>
+            {% with preferences=details.preferences %}
+              {% for preference in preferences %}
+                <tr>
+                  {% if forloop.first %}
+                    <td rowspan="{{ preferences|length }}">{{ staff_number }}</td>
+                    <td rowspan="{{ preferences|length }}">{{ details.name }}</td>
+                    <td rowspan="{{ preferences|length }}">{{ details.department }}</td>
+                  {% endif %}
+                  <td>{{ preference }}</td>
+                </tr>
+              {% endfor %}
+            {% endwith %}
+          {% empty %}
+            <tr>
+              <td colspan="4">No preferences available</td>
+            </tr>
           {% endfor %}
         </tbody>
       </table>

@@ -25,16 +25,28 @@
                         success: function(data) {
                             var preferences = data.preferences;
                             var container = $(".preferences-container");
-                            container.empty();  // Clear existing input fields
+                            container.empty();  // Clear existing fields
                             var preferenceCount = 0;
-        
+    
                             if (preferences.length > 0) {
-                                container.append('<label for="preferences">Preferences (available rooms: ' + preferences.join(', ') + '):</label>');
+                                container.append('<label for="preferences">Preferences:</label>');
+    
                                 preferences.forEach(function(pref, index) {
-                                    container.append('<input type="text" class="preference-input" name="preference_' + preferenceCount + '" placeholder="Enter preference ' + (preferenceCount + 1) + '">');
+                                    // Create a dropdown for each preference
+                                    var select = $('<select></select>')
+                                        .addClass('form-control preference-select')
+                                        .attr('name', 'preference_' + preferenceCount)
+                                        .append('<option value="">Select building based on preference</option>');  // Add default option
+    
+                                    // Add each available room as an option in the dropdown
+                                    preferences.forEach(function(room) {
+                                        select.append('<option value="' + room + '">' + room + '</option>');
+                                    });
+    
+                                    container.append(select);
                                     preferenceCount++;
                                 });
-        
+    
                                 $("#preference_count").val(preferenceCount);  // Update preference count
                             } else {
                                 container.append('<p>No buildings available</p>');
@@ -43,11 +55,11 @@
                         }
                     });
                 } else {
-                    $("#preferences-container").empty();
+                    $(".preferences-container").empty();
                     $("#preference_count").val(0);
                 }
             });
-
+    
             // Handle the Duty Status checkbox
             $("#duty_status").on('change', function() {
                 if ($(this).is(':checked')) {
@@ -56,10 +68,10 @@
                     $("#duty_status_input").hide();
                 }
             });
-
+    
             // Initially hide the Duty Status input field
             $("#duty_status_input").hide();
-
+    
             // Handle the marriage Status radio buttons
             $("input[name='marital_status']").on('change', function() {
                 if ($(this).val() === 'married') {
@@ -67,13 +79,13 @@
                 } else {
                     $("#marriage_input_div").hide();
                 }
-    });
-
-    // Initially hide the marriage input field
-    $("#marriage_input_div").hide();
-            
+            });
+    
+            // Initially hide the marriage input field
+            $("#marriage_input_div").hide();
         });
     </script>
+    
     <div class="container mt-5">
         <!-- Navigation Sections -->
         <ul class="nav nav-pills mb-4" id="form-sections">
@@ -285,16 +297,12 @@
                 <!-- Section 6: Apartment Preferences -->
                 <div class="tab-pane fade" id="apartment-preferences">
                     <h3>Section 6: Apartment Preferences</h3>
-                    <div class="form-group">
-                        <!-- Preferences Section -->
-                        <input type="hidden" id="preference_count" name="preference_count" value="0">
-                        <div class="preferences-container" id="preferences-container">
-                            <!-- Dynamic preference fields will be inserted here -->
-                        </div>
+                    <div class="form-group preferences-container">
+                        <!-- Dropdowns will be dynamically added here -->
                     </div>
-                    
+                    <input type="hidden" id="preference_count" name="preference_count" value="0">
                     <button type="button" class="btn btn-secondary previous-section" data-previous="present-accommodation-tab">Previous</button>
-                    <button class="btn btn-primary" type="submit">Submit</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </div>
         </form>

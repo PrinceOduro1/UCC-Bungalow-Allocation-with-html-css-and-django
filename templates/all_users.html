@@ -125,8 +125,11 @@
                 </tr>
             </thead>
             <tbody>
-                {% for staff_number, details in preferences_dict.items %}
+              {% for staff_number, details in preferences_dict.items %}
+                {% with preferences=details.preferences %}
+                  {% for preference in preferences %}
                 <tr>
+                    {% if forloop.first %}
                     <td rowspan="{{ details.preferences|length }}">
                         {{ staff_number }}
                     </td>
@@ -175,21 +178,19 @@
                     <td rowspan="{{ details.preferences|length }}">
                         {{ details.present_accommodation}}
                     </td>
-                    <td>{{ details.preferences|first }}</td>
+                    {% endif %}
+                    <td>{{ preference }}</td>
                 </tr>
-                {% for pref in details.preferences|slice:":-1" %}
-                <tr>
-                    <td>{{ pref }}</td>
-                </tr>
-                {% endfor %}
-                {% empty %}
-                <tr>
-                    <td colspan="4">No preferences available</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
+              {% endfor %}
+            {% endwith %}
+          {% empty %}
+            <tr>
+              <td colspan="4">No preferences available</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    
         <!-- Table for Senior Staff without Preferences -->
         <h2>Senior Staff</h2>
         <table>
