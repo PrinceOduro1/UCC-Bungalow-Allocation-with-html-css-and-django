@@ -13,6 +13,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            // Handle the staff number input and update preferences
             $("#staff_number").on('input', function() {
                 var staff_number = $(this).val();
                 if (staff_number) {
@@ -46,8 +47,32 @@
                     $("#preference_count").val(0);
                 }
             });
+
+            // Handle the Duty Status checkbox
+            $("#duty_status").on('change', function() {
+                if ($(this).is(':checked')) {
+                    $("#duty_status_input").show();
+                } else {
+                    $("#duty_status_input").hide();
+                }
+            });
+
+            // Initially hide the Duty Status input field
+            $("#duty_status_input").hide();
+
+            // Handle the marriage Status radio buttons
+            $("input[name='marital_status']").on('change', function() {
+                if ($(this).val() === 'married') {
+                    $("#marriage_input_div").show();
+                } else {
+                    $("#marriage_input_div").hide();
+                }
+    });
+
+    // Initially hide the marriage input field
+    $("#marriage_input_div").hide();
+            
         });
-        
     </script>
     <div class="container mt-5">
         <!-- Navigation Sections -->
@@ -79,8 +104,10 @@
         <form action="" method="POST">
             {% csrf_token %}
             {% for message in messages %}
-            <p>{{ message }}</p>
-            {% endfor %}
+            {% if 'building_added' not in message.tags %}
+                <div class="alert alert-success">{{ message }}</div>
+            {% endif %}
+        {% endfor %}
             
         <div class="tab-content">
                 <!-- Welcome Section -->
@@ -184,12 +211,12 @@
                     </div>
                     <div class="form-group">
                         <label for="duty_status">Duty Status:</label><br>
-                        <input type="radio" id="provert" name="duty_status" value="provert">
-                        <label for="provert">Provost</label>
-                        <input type="radio" id="deans" name="duty_status" value="deans">
-                        <label for="deans">Dean</label>
-                        <input type="radio" id="head_of_department" name="duty_status" value="head of department">
-                        <label for="head_of_department">Head of Department</label>
+                        <input type="checkbox" id="duty_status" name="duty_status" {% if form.duty_status.value %}checked{% endif %}>
+                        <label for="duty_status">Duty Status</label>
+                    </div>
+                    <div id="duty_status_input" class="form-group">
+                        <label for="duty_status_details">Duty Status Type:</label>
+                        <input type="text" id="duty_status_type" name="duty_status_type" value="{{ form.duty_status_type.value }}">
                     </div>
                     <div class="form-group">
                         <label for="date_of_duty">Date of Special Duty e.g., dean</label>
@@ -204,7 +231,7 @@
                     <h3>Section 4: Marital Information</h3>
                     <div class="form-group">
                         <label for="marital_status">Marital Status</label><br>
-                        <input type="radio" id="married" name="marital_status" value="married">
+                        <input type="radio" id="married" name="marital_status" value="married" {% if form.married.value %}checked{% endif %}>
                         <label for="married">Married</label>
                 
                         <input type="radio" id="single" name="marital_status" value="single">
@@ -212,6 +239,10 @@
                 
                         <input type="radio" id="none" name="marital_status" value="none">
                         <label for="none">None</label>
+                    </div>
+                    <div id="marriage_input_div" class="form-group">
+                        <label for="marriage_input">Spouse ID:</label>
+                        <input type="text" id="marriage_input" name="marriage_input" value="{{ form.marriage_input.value }}">
                     </div>
                     
                     <button type="button" class="btn btn-secondary previous-section" data-previous="duty-info-tab">Previous</button>
@@ -230,6 +261,7 @@
                             <label for="present_accomodation">Date of Occupation of Present University Accommodation</label>
                             <input type="date" id="present_accomodation" name="present_accomodation" class="form-control">
                         </div>
+                        <div class="form-group" required>
                         <label>Present Accommodation:</label><br>
 
                         <input type="radio" id="off_campus" name="present_accommodation_name" value="off_campus">
@@ -243,6 +275,7 @@
                     
                     <input type="radio" id="not_accommodated" name="present_accommodation_name" value="not_accommodated">
                     <label for="not_accommodated">Not Accommodated</label>
+                </div>
                     </div>
         
                     <button type="button" class="btn btn-secondary previous-section" data-previous="marital-info-tab">Previous</button>

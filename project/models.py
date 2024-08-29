@@ -10,6 +10,8 @@ class Building(models.Model):
     
     name = models.CharField(max_length=100)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
+    rent_charge = models.IntegerField(default=0)
+    location = models.CharField(max_length=100, default="none")
     vacant_rooms = models.IntegerField()
 
     def __str__(self):
@@ -32,12 +34,9 @@ class Appointment(models.Model):
         ('none', 'None')
     ]
     marital_status = models.CharField(max_length=50, choices=marital_status_choices, default='Single')
-    duty_status_choices = [
-        ('provert', 'Provert'),
-        ('deans', 'Deans'),
-        ('head of department', 'Head of Department')
-    ]
-    duty_status = models.CharField(max_length=50, choices=duty_status_choices, default='Provert')
+    spouse_id = models.CharField(max_length=100, null=True, blank=True)
+    duty_status = models.BooleanField(default=False)
+    duty_status_type = models.CharField(max_length=50, null=True, blank=True)
     num_of_children = models.IntegerField()
     date_of_duty = models.DateField(null=True, blank=True)
     

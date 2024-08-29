@@ -110,6 +110,14 @@
         </select>
       </div>
       <div>
+        <label for="rent">Rent Charge</label>
+        <input type="number" id="rent" name="rent" required />
+      </div>
+      <div>
+        <label for="Location">Building Location</label>
+        <input type="text" id="Location" name="Location" required />
+      </div>
+      <div>
         <label for="vacant_rooms">Number of Vacant Rooms</label>
         <input type="number" id="vacant_rooms" name="vacant_rooms" required />
       </div>
@@ -120,7 +128,7 @@
     <ul>
       {% for building in buildings %}
       <li>
-        {{ building.name }} - {{ building.category }} - {{ building.vacant_rooms}} rooms available
+        {{ building.name }} - {{ building.category }} - {{building.rent_charge}} - {{building.location}} - {{ building.vacant_rooms}} rooms available
         <a href="#" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this building?')) document.getElementById('delete-form-{{ building.id }}').submit();">
           <button type="button" class="remove-button">Remove</button>
         </a>

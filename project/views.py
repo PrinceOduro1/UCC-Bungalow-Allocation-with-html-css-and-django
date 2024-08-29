@@ -11,20 +11,48 @@ def admin_manage_buildings(request):
         name = request.POST.get('name')
         category = request.POST.get('category')
         vacant_rooms = request.POST.get('vacant_rooms')
+        rent_charge = request.POST.get('rent')
+        building_location = request.POST.get('Location')
 
         if name and category and vacant_rooms:
             Building.objects.create(
                 name=name,
                 category=category,
+                rent_charge=rent_charge,
+                location=building_location,
                 vacant_rooms=int(vacant_rooms)
             )
-            messages.success(request, 'Building added successfully')
+            messages.add_message(request, messages.SUCCESS, 'Building added successfully', extra_tags='building_added')
             return redirect('manage_buildings')
         else:
             messages.error(request, 'Please provide all required fields')
 
     buildings = Building.objects.all()
     return render(request, 'admin_manage.html', {'buildings': buildings})
+
+
+def view_all_users(request):
+    applications = Appointment.objects.all()
+    senior_staff = senior_staff_appointment.objects.all()
+    preferences = Preference.objects.select_related('application').all()
+
+    # Create a dictionary to group preferences by staff number
+    preferences_dict = {}
+    for pref in preferences:
+        staff_number = pref.application.staff_number
+        if staff_number not in preferences_dict:
+            preferences_dict[staff_number] = {
+                'name': pref.application.name,
+                'department': pref.application.department,
+                'preferences': []
+            }
+        preferences_dict[staff_number]['preferences'].append(pref.preference)
+    
+    return render(request, 'all_users.html', {
+        'applications': applications,
+        'senior_staff': senior_staff,
+        'preferences_dict': preferences_dict
+    })
 
 
 def calculate_accommodation_points(present_accommodation, present_accommodation_date):
@@ -187,10 +215,12 @@ def index(request):
         study_leaveFrom = request.POST.get('study_leaveFrom', None)
         study_leaveTo = request.POST.get('study_leaveTo', None)
         marital_status = request.POST.get('marital_status', None)
-        duty_status = request.POST.get('duty_status', None)
+        marital_input = request.POST.get('marriage_input', None)
+        duty_status = request.POST.get('duty_status', None) == 'on'
+        duty_status_type = request.POST.get('duty_status_type', None)
         num_of_children = request.POST.get('num_of_children', 0)
         date_of_duty = request.POST.get('date_of_duty', None)
-        print(f"Date: {present_accommodation}")
+        print(f"marriage : {marital_input}")
 
         try:
             status = status_point.objects.get(status_name=status_points)
@@ -213,6 +243,8 @@ def index(request):
             marital_status=marital_status,
             num_of_children=num_of_children,
         )
+        if marital_status == "married" and marital_input:
+            user.spouse_id = marital_input
 
         if study_leaveFrom:
             user.studyLeave_from = study_leaveFrom
@@ -226,7 +258,9 @@ def index(request):
             user.present_accommodation = present_accommodation_name
         if duty_status:
             user.duty_status = duty_status
-
+            user.duty_status_type = duty_status_type
+        print(f"duty_status: {duty_status}")
+        print(f"duty_status_type: {duty_status_type}")
         user.save() 
         staff_number = request.POST.get('staff_number')
         preference_count = int(request.POST.get('preference_count', 0))
