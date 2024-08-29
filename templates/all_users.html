@@ -108,6 +108,19 @@
                     <th>Staff Number</th>
                     <th>Name</th>
                     <th>Department</th>
+                    <th>Mobile Number</th>
+                    <th>Date of University Appointment</th>
+                    <th>Present University Bungalow</th>
+                    <th>Date of Occupation of Accomodation</th>
+                    <th>Study leave from</th>
+                    <th>Study leave to</th>
+                    <th>Marital Status</th>
+                    <th>Spouse ID</th>
+                    <th>Duty Status</th>
+                    <th>Duty Status Type</th>
+                    <th>Number of Children</th>
+                    <th>Date of Duty</th>
+                    <th>Present Accomodation</th>
                     <th>Preferences</th>
                 </tr>
             </thead>
@@ -122,6 +135,45 @@
                     </td>
                     <td rowspan="{{ details.preferences|length }}">
                         {{ details.department }}
+                    </td>
+                    <td rowspan="{{ details.preferences|length }}">
+                        {{ details.mobile_Number }}
+                    </td>
+                    <td rowspan="{{ details.preferences|length }}">
+                        {{ details.dateOf_Uni_Appointment }}
+                    </td>
+                    <td rowspan="{{ details.preferences|length }}">
+                        {{ details.presentUni_bungalow }}
+                    </td>
+                    <td rowspan="{{ details.preferences|length }}">
+                        {{ details.date_of_occupation_ofAccomodation}}
+                    </td>
+                    <td rowspan="{{ details.preferences|length }}">
+                        {{ details.studyLeave_from}}
+                    </td>
+                    <td rowspan="{{ details.preferences|length }}">
+                        {{ details.studyLeave_to}}
+                    </td>
+                    <td rowspan="{{ details.preferences|length }}">
+                        {{ details.marital_status}}
+                    </td>
+                    <td rowspan="{{ details.preferences|length }}">
+                        {{ details.spouse_id}}
+                    </td>
+                    <td rowspan="{{ details.preferences|length }}">
+                        {{ details.duty_status}}
+                    </td>
+                    <td rowspan="{{ details.preferences|length }}">
+                        {{ details.duty_status_type}}
+                    </td>
+                    <td rowspan="{{ details.preferences|length }}">
+                        {{ details.num_of_children}}
+                    </td>
+                    <td rowspan="{{ details.preferences|length }}">
+                        {{ details.date_of_duty}}
+                    </td>
+                    <td rowspan="{{ details.preferences|length }}">
+                        {{ details.present_accommodation}}
                     </td>
                     <td>{{ details.preferences|first }}</td>
                 </tr>
@@ -146,6 +198,14 @@
                     <th>Staff Number</th>
                     <th>Name</th>
                     <th>Department</th>
+                    <th>Mobile Number</th>
+                    <th>Date of University Appointment</th>
+                    <th>Present University Bungalow</th>
+                    <th>Date of Occupation of Accomodation</th>
+                    <th>Marital Status</th>
+                    <th>Number of Children</th>
+                    <th>Total Point</th>
+                    <th>Present Accomodation</th>
                 </tr>
             </thead>
             <tbody>
@@ -154,6 +214,14 @@
                     <td>{{ staff.staff_number }}</td>
                     <td>{{ staff.name }}</td>
                     <td>{{ staff.department }}</td>
+                    <td>{{ staff.mobile_no }}</td>
+                    <td>{{ staff.dateOf_Uni_Appointment }}</td>
+                    <td>{{ staff.presentUni_bungalow }}</td>
+                    <td>{{ staff.date_of_occupation_ofAccomodation }}</td>
+                    <td>{{ staff.marital_status }}</td>
+                    <td>{{ staff.num_of_children }}</td>
+                    <td>{{ staff.total_points }}</td>
+                    <td>{{ staff.present_accommodation }}</td>
                 </tr>
                 {% empty %}
                 <tr>

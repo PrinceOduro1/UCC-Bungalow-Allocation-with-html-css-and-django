@@ -44,6 +44,19 @@ def view_all_users(request):
             preferences_dict[staff_number] = {
                 'name': pref.application.name,
                 'department': pref.application.department,
+                'mobile_Number': pref.application.mobile_no,
+                'dateOf_Uni_Appointment': pref.application.dateOf_Uni_Appointment,
+                'presentUni_bungalow': pref.application.presentUni_bungalow,
+                'date_of_occupation_ofAccomodation': pref.application.date_of_occupation_ofAccomodation,
+                'studyLeave_from': pref.application.studyLeave_from,
+                'studyLeave_to': pref.application.studyLeave_to,
+                'marital_status': pref.application.marital_status,
+                'spouse_id': pref.application.spouse_id,
+                'duty_status': pref.application.duty_status,
+                'duty_status_type': pref.application.duty_status_type,
+                'num_of_children': pref.application,
+                'date_of_duty': pref.application.date_of_duty,
+                'present_accommodation': pref.application.present_accommodation,
                 'preferences': []
             }
         preferences_dict[staff_number]['preferences'].append(pref.preference)
