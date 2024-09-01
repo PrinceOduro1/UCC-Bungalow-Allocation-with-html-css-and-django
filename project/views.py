@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import Appointment,status_point,Preference,Building,assign_point_and_preference,senior_staff_appointment,designation_point,Preference_senior_staff
+from .models import Appointment,status_point,Preference,Building,assign_point_and_preference,senior_staff_appointment,designation_point,Preference_senior_staff,junior_staff_appointment,designation_point_junior,Preference_junior_staff,assign_point_and_preference_senior,assign_point_and_preference_junior
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
@@ -109,10 +109,10 @@ def cal_marital_points(duty_status, marital_status, num_of_children, date_of_dut
                 else:
                     total_point+=5
 
-        if duty_status in ['head of department', 'deans', 'provert']:
+        if duty_status:
             if months_of_duty >= 12:
                 total_point += 3
-        
+        print(duty_status)
         return total_point
 
     except ValueError as e:
@@ -127,13 +127,15 @@ def calculate_status_points(initial_point, dateOf_Uni_Appointment, study_leaveFr
         appointment_date = datetime.strptime(dateOf_Uni_Appointment, '%Y-%m-%d')
         current_date = datetime.now()
         months_in_service = (current_date.year - appointment_date.year) * 12 + abs(current_date.month - appointment_date.month)
-
+        print(f"month in service: {months_in_service}")
         # Remove months during the study leave from the service period calculation
         if study_leaveFrom and study_leaveTo:
             leave_from = datetime.strptime(study_leaveFrom, '%Y-%m-%d')
             leave_to = datetime.strptime(study_leaveTo, '%Y-%m-%d')
             leave_months = (leave_to.year - leave_from.year) * 12 + abs(leave_to.month - leave_from.month) + 1
             months_in_service -= leave_months
+            print(f"leave: {leave_months}")
+            print(f"month after leave: {months_in_service}")
         
         # Assign 1 point for each month in service
         total_points += months_in_service
@@ -316,10 +318,10 @@ def calculate_service_points_seniorstaff(designation_point, dateOf_Uni_Appointme
         # Calculate points based on months in service
         appointment_date = datetime.strptime(dateOf_Uni_Appointment, '%Y-%m-%d')
         current_date = datetime.now()
-        months_in_service = (current_date.year - appointment_date.year) * 12 + abs(current_date.month - appointment_date.month)
+        years_in_service = int(((current_date.year - appointment_date.year) * 12 + abs(current_date.month - appointment_date.month)) / 12)
         
         # 2 points for each year of service
-        total_points = months_in_service * 2
+        total_points = years_in_service * 2
 
         
 
@@ -378,6 +380,7 @@ def senior_staff_app(request):
         present_accommodation = request.POST.get('present_accomodation_date',None)
         designation_points = request.POST.get('status_point')
         marital_status = request.POST.get('marital_status', None)
+        marital_input = request.POST.get('marriage_input', None)        
         num_of_children = request.POST.get('num_of_children', 0)
         present_accommodation_name = request.POST.get('present_accommodation_name')
 
@@ -400,6 +403,8 @@ def senior_staff_app(request):
             marital_status=marital_status,
             num_of_children=num_of_children,
         )
+        if marital_status == "married" and marital_input:
+            user.spouse_id = marital_input
         if present_accommodation:
             user.date_of_occupation_ofAccomodation = present_accommodation
         if bungalow_no:
@@ -417,7 +422,7 @@ def senior_staff_app(request):
             appointment = senior_staff_appointment.objects.get(staff_number=staff_number)
         except senior_staff_appointment.DoesNotExist:
             print("Appointment not found")
-            return render(request, 'index.html', {'error': 'Appointment not found'})
+            return render(request, 'senior_staff_form.html', {'error': 'Appointment not found'})
 
         # Clear previous preferences for the same appointment
         Preference_senior_staff.objects.filter(application=appointment).delete()
@@ -437,66 +442,211 @@ def senior_staff_app(request):
         return redirect('senior_staff_form')
     return render(request,'senior_staff_form.html')
 
+
+#junior staff calculation functions
+def calculate_service_points_juniorstaff(designation_point, dateOf_Uni_Appointment):
+    try:
+        total_points = 0
+
+        # Calculate points based on months in service
+        appointment_date = datetime.strptime(dateOf_Uni_Appointment, '%Y-%m-%d')
+        current_date = datetime.now()
+        years_in_service = int(((current_date.year - appointment_date.year) * 12 + abs(current_date.month - appointment_date.month)) / 12)
+        print(f"years in service : {years_in_service}")
+        # 2 points for each year of service
+        total_points = years_in_service * 2
+
+        return total_points + designation_point
+    
+    except ValueError:
+        raise ValueError('Invalid date format. Please use YYYY-MM-DD.')
+
+
+
+def cal_marital_points_juniorstaff(marital_status, num_of_children):
+
+    total_point = 0
+        
+    if marital_status == 'married':
+        total_point += 2
+        
+    if num_of_children:
+        total_for_children = num_of_children * 1
+        if total_for_children<=5:
+            total_point+=total_for_children
+        else:
+            total_point+=5
+    return total_point
+
+
+#junior staff form application and checkpoint
+def junior_staff(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        staff_number = request.POST.get('staff_number')
+        department = request.POST.get('department')
+        mobile_number = request.POST.get('mobile_number')
+        uni_appointment = request.POST.get('uni_appointment')
+        bungalow_no = request.POST.get('bungalow_no', '')
+        designation_points = request.POST.get('status_point')
+        marital_status = request.POST.get('marital_status', None)
+        marital_input = request.POST.get('marriage_input', None)        
+        num_of_children = request.POST.get('num_of_children', 0)
+
+        try:
+            status = designation_point_junior.objects.get(status_name=designation_points)
+        except designation_point_junior.DoesNotExist:
+            messages.error(request, 'Status does not exist')
+            return render(request, 'junior_staff.html')
+
+        if junior_staff_appointment.objects.filter(staff_number=staff_number).exists():
+            messages.error(request, 'Staff number already used in application')
+            return render(request, 'junior_staff.html')
+        user = junior_staff_appointment(
+            name=name,
+            staff_number=staff_number,
+            department=department,
+            mobile_no=mobile_number,
+            dateOf_Uni_Appointment=uni_appointment,
+            designation_point=status.point,
+            marital_status=marital_status,
+            num_of_children=num_of_children,
+        )
+        if marital_status == "married" and marital_input:
+            user.spouse_id = marital_input
+        if bungalow_no:
+            user.presentUni_bungalow = bungalow_no
+        user.save() 
+        staff_number = request.POST.get('staff_number')
+        preference_count = int(request.POST.get('preference_count', 0))
+
+        print(f"Staff Number: {staff_number}")
+        print(f"Preference Count: {preference_count}")
+
+        try:
+            appointment = junior_staff_appointment.objects.get(staff_number=staff_number)
+        except junior_staff_appointment.DoesNotExist:
+            print("Appointment not found")
+            return render(request, 'junior_staff.html', {'error': 'Appointment not found'})
+
+        # Clear previous preferences for the same appointment
+        Preference_junior_staff.objects.filter(application=appointment).delete()
+
+        # Save preferences
+        preferences_saved = 0
+        for i in range(preference_count):
+            preference_text = request.POST.get(f'preference_{i}')
+            print(f"Preference {i}: {preference_text}")  # Debugging output
+            print(junior_staff_appointment)
+            if preference_text:
+                Preference_junior_staff.objects.create(application=junior_staff_appointment, preference=preference_text)
+                preferences_saved += 1
+        
+        print(f"Total Preferences Saved: {preferences_saved}")
+
+        # Redirect or render success page
+        return redirect('junior_staff')
+    return render(request,'junior_staff.html')
+
+
 #calculate points and assigned preferences based on points
+import logging
+
 def check_point(request):
     points = None
     marital_point = None
-    accommodation_points = 0  # Initialize as 0
+    accommodation_points = 0
     total = 0
+    couples_point = 0
 
     all_appointments = list(Appointment.objects.all())
     all_senior_staff_appointments = list(senior_staff_appointment.objects.all())
+    all_junior_staff_appointments = list(junior_staff_appointment.objects.all())
 
     results = []
-
-    # Calculate points for all appointments
     all_appointments_with_points = []
 
-    # Process senior staff appointments first
+    logger = logging.getLogger(__name__)
+
+    def find_spouse_points(spouse_id, category):
+        for app_data in all_appointments_with_points:
+            if app_data['appointment'].staff_number == spouse_id and app_data['category'] == category:
+                return app_data['total_points']
+        return 0
+
+    # Process junior staff appointments
+    for junior_appointment in all_junior_staff_appointments:
+        try:
+            points = calculate_service_points_juniorstaff(
+                junior_appointment.designation_point,
+                junior_appointment.dateOf_Uni_Appointment.strftime('%Y-%m-%d')
+            )
+            marital_point = cal_marital_points_juniorstaff(
+                junior_appointment.marital_status,
+                junior_appointment.num_of_children
+            )
+            total = int(points) + int(marital_point)
+
+            junior_appointment.total_points = total
+            junior_appointment.save()
+
+            staff_number = getattr(junior_appointment, 'staff_number', None)
+            category = 'unknown'
+            if staff_number and isinstance(staff_number, str):
+                if staff_number.startswith('sm'):
+                    category = 'senior_member'
+                elif staff_number.startswith('ss'):
+                    category = 'senior_staff'
+                elif staff_number.startswith('js'):
+                    category = 'junior_staff'
+
+            # Collect data for couples' points calculation
+            all_appointments_with_points.append({
+                'appointment': junior_appointment,
+                'total_points': total,
+                'category': category
+            })
+
+        except Exception as e:
+            messages.error(request, f'Error in processing junior staff appointment: {str(e)}')
+
+    # Process senior staff appointments
     for staff_appointment in all_senior_staff_appointments:
         try:
             points = calculate_service_points_seniorstaff(
                 staff_appointment.designation_point,
                 staff_appointment.dateOf_Uni_Appointment.strftime('%Y-%m-%d')
             )
-            print(staff_appointment.designation_point)
-            print(designation_point)
             marital_point = cal_marital_points_seniorstaff(
                 staff_appointment.marital_status,
                 staff_appointment.num_of_children
             )
-            if staff_appointment.present_accommodation:  # Only calculate if present_accommodation is not None
-                accommodation_points = calculate_present_accommodation_points_seniorstaff(
-                    staff_appointment.present_accommodation,
-                    staff_appointment.date_of_occupation_ofAccomodation.strftime('%Y-%m-%d') if staff_appointment.date_of_occupation_ofAccomodation else None
-                )
-                total = int(points) + int(marital_point) + int(accommodation_points)
-            else:
-                total = int(points) + int(marital_point)
+            accommodation_points = calculate_present_accommodation_points_seniorstaff(
+                staff_appointment.present_accommodation,
+                staff_appointment.date_of_occupation_ofAccomodation.strftime('%Y-%m-%d') if staff_appointment.date_of_occupation_ofAccomodation else None
+            ) if staff_appointment.present_accommodation else 0
+            total = int(points) + int(marital_point) + int(accommodation_points)
 
-            # Update the senior staff appointment with calculated total points
             staff_appointment.total_points = total
             staff_appointment.save()
-             # Determine the category of the staff
-            if appointment.staff_number.startswith('sm'):
+
+            category = 'unknown'
+            if staff_appointment.staff_number.startswith('sm'):
                 category = 'senior_member'
-            elif appointment.staff_number.startswith('ss'):
+            elif staff_appointment.staff_number.startswith('ss'):
                 category = 'senior_staff'
-            elif appointment.staff_number.startswith('js'):
+            elif staff_appointment.staff_number.startswith('js'):
                 category = 'junior_staff'
-            else:
-                category = 'unknown'
-            # Collect results
+
+            # Collect data for couples' points calculation
             all_appointments_with_points.append({
                 'appointment': staff_appointment,
                 'total_points': total,
                 'category': category
             })
 
-        except senior_staff_appointment.DoesNotExist:
-            messages.error(request, 'Error in processing senior staff appointment.')
         except Exception as e:
-            messages.error(request, f'Error: {str(e)}')
+            messages.error(request, f'Error in processing senior staff appointment: {str(e)}')
 
     # Process general appointments
     for appointment in all_appointments:
@@ -511,41 +661,47 @@ def check_point(request):
                 appointment.duty_status,
                 appointment.marital_status,
                 appointment.num_of_children,
-                appointment.date_of_duty.strftime('%Y-%m-%d') if appointment.date_of_duty else None,
+                appointment.date_of_duty.strftime('%Y-%m-%d') if appointment.date_of_duty else None
             )
-            if appointment.present_accommodation:  # Only calculate if present_accommodation is not None
-                accommodation_points = calculate_accommodation_points(
-                    appointment.present_accommodation,
-                    appointment.date_of_occupation_ofAccomodation.strftime('%Y-%m-%d') if appointment.date_of_occupation_ofAccomodation else None
-                )
-                total = int(points) + int(marital_point) + int(accommodation_points)
-            else:
-                total = int(points) + int(marital_point)
+            accommodation_points = calculate_accommodation_points(
+                appointment.present_accommodation,
+                appointment.date_of_occupation_ofAccomodation.strftime('%Y-%m-%d') if appointment.date_of_occupation_ofAccomodation else None
+            ) if appointment.present_accommodation else 0
+            total = int(points) + int(marital_point) + int(accommodation_points)
 
-            
+            appointment.total_points = total
+            appointment.save()
 
-            # Determine the category of the staff
+            category = 'unknown'
             if appointment.staff_number.startswith('sm'):
                 category = 'senior_member'
             elif appointment.staff_number.startswith('ss'):
                 category = 'senior_staff'
             elif appointment.staff_number.startswith('js'):
                 category = 'junior_staff'
-            else:
-                category = 'unknown'
 
-            # Collect results
+            # Collect data for couples' points calculation
             all_appointments_with_points.append({
                 'appointment': appointment,
                 'total_points': total,
                 'category': category
             })
 
-        except Appointment.DoesNotExist:
-            messages.error(request, 'Error in processing appointment.')
         except Exception as e:
-            messages.error(request, f'Error: {str(e)}')
-    # Sort appointments by total points in descending order
+            messages.error(request, f'Error in processing appointment: {str(e)}')
+
+    # Calculate couples' points
+    for entry in all_appointments_with_points:
+        appointment = entry['appointment']
+        category = entry['category']
+        spouse_id = appointment.spouse_id
+        if spouse_id:
+            spouse_points = find_spouse_points(spouse_id, category)
+            if spouse_points > 0:
+                couples_point += entry['total_points'] + spouse_points
+                logger.info(f"Added couples points: {appointment.staff_number}, Spouse ID: {spouse_id}, Points: {entry['total_points']}, Spouse Points: {spouse_points}")
+
+    # Sort all appointments by total points in descending order
     all_appointments_with_points.sort(key=lambda x: x['total_points'], reverse=True)
 
     # Assign buildings based on sorted list
@@ -557,74 +713,20 @@ def check_point(request):
         assigned_building = None
 
         if category == 'senior_member':
-            available_buildings = Building.objects.filter(category='senior_member', vacant_rooms__gt=0).order_by('-vacant_rooms')
-            for building in available_buildings:
-                if building.vacant_rooms > 0:
-                    building.vacant_rooms -= 1
-                    building.save()
-                    assigned_building = building.name
-                    break
-
+            assigned_building = assign_building('senior_member', total_points)
             if not assigned_building:
-                available_buildings = Building.objects.filter(category='senior_staff', vacant_rooms__gt=0).order_by('-vacant_rooms')
-                for building in available_buildings:
-                    if building.vacant_rooms > 0:
-                        senior_staff = senior_staff_appointment.objects.filter(
-                            # No direct query on assigned_building; this is handled in logic
-                        )
-                        if not senior_staff or all(total_points > s.total_points for s in senior_staff):
-                            building.vacant_rooms -= 1
-                            building.save()
-                            assigned_building = building.name
-                            break
-
+                assigned_building = assign_building('senior_staff', total_points)
             if not assigned_building:
-                available_buildings = Building.objects.filter(category='junior_staff', vacant_rooms__gt=0).order_by('-vacant_rooms')
-                for building in available_buildings:
-                    if building.vacant_rooms > 0:
-                        building.vacant_rooms -= 1
-                        building.save()
-                        assigned_building = building.name
-                        break
-
+                assigned_building = assign_building('junior_staff', total_points)
         elif category == 'senior_staff':
-            available_buildings = Building.objects.filter(category='senior_staff', vacant_rooms__gt=0).order_by('-vacant_rooms')
-            for building in available_buildings:
-                if building.vacant_rooms > 0:
-                    building.vacant_rooms -= 1
-                    building.save()
-                    assigned_building = building.name
-                    break
-
+            assigned_building = assign_building('senior_staff', total_points)
             if not assigned_building:
-                available_buildings = Building.objects.filter(category='junior_staff', vacant_rooms__gt=0).order_by('-vacant_rooms')
-                for building in available_buildings:
-                    if building.vacant_rooms > 0:
-                        building.vacant_rooms -= 1
-                        building.save()
-                        assigned_building = building.name
-                        break
-
+                assigned_building = assign_building('junior_staff', total_points)
         elif category == 'junior_staff':
-            available_buildings = Building.objects.filter(category='junior_staff', vacant_rooms__gt=0).order_by('-vacant_rooms')
-            for building in available_buildings:
-                if building.vacant_rooms > 0:
-                    building.vacant_rooms -= 1
-                    building.save()
-                    assigned_building = building.name
-                    break
+            assigned_building = assign_building('junior_staff', total_points)
 
-        # Save the results into the assign_point_and_preference model
-        assign_preference, created = assign_point_and_preference.objects.get_or_create(
-            application=appointment,
-            defaults={'preference_assigned': assigned_building if assigned_building else 'Not Assigned', 'total_points': total_points}
-        )
-        if not created:
-            assign_preference.preference_assigned = assigned_building if assigned_building else 'Not Assigned'
-            assign_preference.total_points = total_points
-            assign_preference.save()
+        save_assignment(appointment, category, assigned_building, total_points)
 
-        # Add to results list for HTML rendering
         results.append({
             'name': appointment.name,
             'staff_number': appointment.staff_number,
@@ -632,4 +734,38 @@ def check_point(request):
             'assigned_building': assigned_building if assigned_building else 'Not Assigned'
         })
 
-    return render(request, 'check_point.html', {'results': results})
+    return render(request, 'check_point.html', {'results': results, 'couples_point': couples_point})
+
+
+def assign_building(category, total_points):
+    available_buildings = Building.objects.filter(category=category, vacant_rooms__gt=0).order_by('-vacant_rooms')
+    for building in available_buildings:
+        if building.vacant_rooms > 0:
+            building.vacant_rooms -= 1
+            building.save()
+            return building.name
+    return None
+
+
+def save_assignment(appointment, category, assigned_building, total_points):
+    if category == 'senior_member':
+        assign_preference, created = assign_point_and_preference.objects.get_or_create(
+            application=appointment,
+            defaults={'preference_assigned': assigned_building if assigned_building else 'Not Assigned', 'total_points': total_points}
+        )
+    elif category == 'senior_staff':
+        assign_preference, created = assign_point_and_preference_senior.objects.get_or_create(
+            application=appointment,
+            defaults={'preference_assigned': assigned_building if assigned_building else 'Not Assigned', 'total_points': total_points}
+        )
+    elif category == 'junior_staff':
+        assign_preference, created = assign_point_and_preference_junior.objects.get_or_create(
+            application=appointment,
+            defaults={'preference_assigned': assigned_building if assigned_building else 'Not Assigned', 'total_points': total_points}
+        )
+
+    # Update if already created
+    if 'assign_preference' in locals() and not created:
+        assign_preference.preference_assigned = assigned_building if assigned_building else 'Not Assigned'
+        assign_preference.total_points = total_points
+        assign_preference.save()

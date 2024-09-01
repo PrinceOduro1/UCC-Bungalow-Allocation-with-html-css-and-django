@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCC Apartment Selection Form (Senior Staff)</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // Handle the staff number input and update preferences
+            $("#staff_number").on('input', function() {
+                var staff_number = $(this).val();
+                if (staff_number) {
+                    $.ajax({
+                        url: "{% url 'get_buildings' %}",
+                        data: {
+                            'staff_number': staff_number
+                        },
+                        success: function(data) {
+                            var preferences = data.preferences;
+                            var container = $(".preferences-container");
+                            container.empty();  // Clear existing fields
+                            var preferenceCount = 0;
+    
+                            if (preferences.length > 0) {
+                                container.append('<label for="preferences">Preferences:</label>');
+    
+                                preferences.forEach(function(pref, index) {
+                                    // Create a dropdown for each preference
+                                    var select = $('<select></select>')
+                                        .addClass('form-control preference-select')
+                                        .attr('name', 'preference_' + preferenceCount)
+                                        .append('<option value="">Select building based on preference</option>');  // Add default option
+    
+                                    // Add each available room as an option in the dropdown
+                                    preferences.forEach(function(room) {
+                                        select.append('<option value="' + room + '">' + room + '</option>');
+                                    });
+    
+                                    container.append(select);
+                                    preferenceCount++;
+                                });
+    
+                                $("#preference_count").val(preferenceCount);  // Update preference count
+                            } else {
+                                container.append('<p>No buildings available</p>');
+                                $("#preference_count").val(0);
+                            }
+                        }
+                    });
+                } else {
+                    $(".preferences-container").empty();
+                    $("#preference_count").val(0);
+                }
+            });
+    
+            // Handle the marriage Status radio buttons
+            $("input[name='marital_status']").on('change', function() {
+                if ($(this).val() === 'married') {
+                    $("#marriage_input_div").show();
+                } else {
+                    $("#marriage_input_div").hide();
+                }
+            });
+    
+            // Initially hide the marriage input field
+            $("#marriage_input_div").hide();
+        });
+    </script>
+    <div class="container mt-5">
+        <!-- Navigation Sections -->
+        <ul class="nav nav-pills mb-4" id="form-sections">
+            <li class="nav-item">
+                <a class="nav-link active" id="welcome-tab" data-toggle="pill" href="#welcome">Welcome</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="personal-info-tab" data-toggle="pill" href="#personal-info">Personal Info</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="university-info-tab" data-toggle="pill" href="#university-info">University Info</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="marital-info-tab" data-toggle="pill" href="#marital-info">Marital Info</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="present-accommodation-tab" data-toggle="pill" href="#present-accommodation">Present Accommodation</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="apartment-preferences-tab" data-toggle="pill" href="#apartment-preferences">Apartment Preferences</a>
+            </li>
+        </ul>
+
+        <!-- Form Sections (Single Form Tag) -->
+        <form action="" method="POST">
+            {% csrf_token %}
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+            
+            <div class="tab-content">
+                <!-- Welcome Section -->
+                <div class="tab-pane fade show active" id="welcome">
+                    <h3>Welcome to UCC Apartment Selection Forms</h3>
+                    <p>Please fill out the form diligently as it will be used to generate points for apartment allocation.</p>
+                    <button type="button" class="btn btn-primary next-section" data-next="personal-info-tab">Next</button>
+                </div>
+
+                <!-- Section 1: Personal Information -->
+                <div class="tab-pane fade" id="personal-info">
+                    <h3>Section 1: Personal Information</h3>
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="Please enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="mobile_number">Mobile Number</label>
+                        <input type="number" id="mobile_number" name="mobile_number" class="form-control" placeholder="Please enter your mobile number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="num_of_children">Number of Children</label>
+                        <input type="number" id="num_of_children" name="num_of_children" class="form-control" placeholder="Please enter number of children" required>
+                    </div>
+                    <button type="button" class="btn btn-secondary previous-section" data-previous="welcome-tab">Previous</button>
+                    <button type="button" class="btn btn-primary next-section" data-next="university-info-tab">Next</button>
+                </div>
+
+                <!-- Section 2: University Information -->
+                <div class="tab-pane fade" id="university-info">
+                    <h3>Section 2: University Information</h3>
+                    <div class="form-group">
+                        <label for="staff_number">Staff Number</label>
+                        <input type="text" id="staff_number" name="staff_number" class="form-control" value="{{ request.POST.staff_number }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <input type="text" id="department" name="department" class="form-control" placeholder="Please enter your department" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="status_point">Your Current Status</label>
+                        <input type="text" id="status_point" name="status_point" class="form-control" placeholder="Please enter your current status e.g., Professor" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="uni_appointment">Date of University Appointment</label>
+                        <input type="date" id="uni_appointment" name="uni_appointment" class="form-control" required>
+                    </div>
+                    <button type="button" class="btn btn-secondary previous-section" data-previous="personal-info-tab">Previous</button>
+                    <button type="button" class="btn btn-primary next-section" data-next="duty-info-tab">Next</button>
+                </div>
+
+                
+                <!-- Section 4: Marital Information -->
+                <div class="tab-pane fade" id="marital-info">
+                    <h3>Section 4: Marital Information</h3>
+                    <div class="form-group">
+                        <label for="marital_status">Marital Status</label><br>
+                        <input type="radio" id="married" name="marital_status" value="married" {% if form.married.value %}checked{% endif %}>
+                        <label for="married">Married</label>
+                
+                        <input type="radio" id="single" name="marital_status" value="single">
+                        <label for="single">Single</label>
+                
+                        <input type="radio" id="none" name="marital_status" value="none">
+                        <label for="none">None</label>
+                    </div>
+                    <div id="marriage_input_div" class="form-group">
+                        <label for="marriage_input">Spouse ID:</label>
+                        <input type="text" id="marriage_input" name="marriage_input" value="{{ form.marriage_input.value }}">
+                    </div>
+                    
+                    <button type="button" class="btn btn-secondary previous-section" data-previous="duty-info-tab">Previous</button>
+                    <button type="button" class="btn btn-primary next-section" data-next="present-accommodation-tab">Next</button>
+                </div>
+
+                <!-- Section 4: Present Accommodation -->
+                <div class="tab-pane fade" id="present-accommodation">
+                    <h3>Section 4: Present Accommodation</h3>
+                    <div class="form-group">
+                        <div class="form-group">
+                            <label for="bungalow_no">Present University Bungalow/Flat Number (if any)</label>
+                            <input type="text" id="bungalow_no" name="bungalow_no" class="form-control" placeholder="Please enter your present university bungalow or flat number">
+                        </div>
+                    </div>
+        
+                    <button type="button" class="btn btn-secondary previous-section" data-previous="marital-info-tab">Previous</button>
+                    <button type="button" class="btn btn-primary next-section" data-next="apartment-preferences-tab">Next</button>
+                </div>
+
+                <!-- Section 6: Apartment Preferences -->
+                <div class="tab-pane fade" id="apartment-preferences">
+                    <h3>Section 6: Apartment Preferences</h3>
+                    <div class="form-group">
+                        <!-- Preferences Section -->
+                        <input type="hidden" id="preference_count" name="preference_count" value="0">
+                        <div class="preferences-container" id="preferences-container">
+                            <!-- Dynamic preference fields will be inserted here -->
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-secondary previous-section" data-previous="present-accommodation-tab">Previous</button>
+                    <button class="btn btn-primary" type="submit">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/custom.js' %}"></script>
+    <script>
+       
+    </script>
+</body>
+</html>

@@ -39,6 +39,7 @@ class Appointment(models.Model):
     duty_status_type = models.CharField(max_length=50, null=True, blank=True)
     num_of_children = models.IntegerField()
     date_of_duty = models.DateField(null=True, blank=True)
+    total_points = models.IntegerField(default=0)
     
     present_accommodation = models.CharField(max_length=50, choices=[('off_campus', 'Off Campus'), ('on_campus', 'On Campus'), ('temporary_accommodation', 'Temporary Accommodation'), ('not_accommodated', 'Not Accommodated')], default='Not Accomodated')
 
@@ -91,9 +92,22 @@ class senior_staff_appointment(models.Model):
         ('none', 'None')
     ]
     marital_status = models.CharField(max_length=50, choices=marital_status_choices, default='Single')
+    spouse_id = models.CharField(max_length=100, null=True, blank=True)
     num_of_children = models.IntegerField()
     total_points = models.IntegerField(default=0)
     present_accommodation = models.CharField(max_length=50, choices=[('Senior staff university accommodation', 'Senior staff university accommodation'), ('Junior staff bungalow', 'Junior Staff Bungalow'), ('not_accommodated', 'Not Accommodated')], default='Not Accomodated')
+
+    def get_category(self):
+        if self.staff_number.startswith('sm'):
+            return 'senior_member'
+        elif self.staff_number.startswith('ss'):
+            return 'senior_staff'
+        elif self.staff_number.startswith('js'):
+            return 'junior_staff'
+        return 'unknown'
+    
+    def __str__(self):
+        return self.name
 
 class designation_point(models.Model):
     status_name = models.CharField(max_length=100)
@@ -116,3 +130,63 @@ class assign_point_and_preference_senior(models.Model):
 
     def __str__(self):
         return f"Assigned point and preference for {self.application.name}"
+
+#junior staff models
+class junior_staff_appointment(models.Model):
+    name = models.CharField(max_length=100)
+    staff_number = models.CharField(max_length=100)
+    department = models.CharField(max_length=100)
+    mobile_no = models.IntegerField()
+    dateOf_Uni_Appointment = models.DateField(default=date.today)
+    presentUni_bungalow = models.CharField(max_length=100)
+    designation_point = models.IntegerField(default=0)
+    marital_status_choices = [
+        ('single', 'Single'),
+        ('married', 'Married'),
+        ('none', 'None')
+    ]
+    marital_status = models.CharField(max_length=50, choices=marital_status_choices, default='Single')
+    spouse_id = models.CharField(max_length=100, null=True, blank=True)
+    num_of_children = models.IntegerField()
+    total_points = models.IntegerField(default=0)
+
+    def get_category(self):
+        if self.staff_number.startswith('sm'):
+            return 'senior_member'
+        elif self.staff_number.startswith('ss'):
+            return 'senior_staff'
+        elif self.staff_number.startswith('js'):
+            return 'junior_staff'
+        return 'unknown'
+    
+    def __str__(self):
+        return self.name
+
+class designation_point_junior(models.Model):
+    status_name = models.CharField(max_length=100)
+    point = models.IntegerField()
+
+    def __str__(self):
+        return self.status_name
+
+class Preference_junior_staff(models.Model):
+    application = models.ForeignKey(junior_staff_appointment, on_delete=models.CASCADE, related_name='preference_set')
+    preference = models.CharField(max_length=255, default='sn1')
+
+    def __str__(self):
+        return f"Preferences for {self.application.name}"
+
+class assign_point_and_preference_junior(models.Model):
+    application = models.ForeignKey(junior_staff_appointment, on_delete=models.CASCADE, related_name='assigned_point_and_preference_set')
+    preference_assigned = models.CharField(max_length=255, null=True, blank=True)
+    total_points = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"Assigned point and preference for {self.application.name}"
+
+class CouplePoints(models.Model):
+    staff_number = models.CharField(max_length=100)
+    spouse_id = models.CharField(max_length=100)
+    couple_points = models.IntegerField()
+    total_points = models.IntegerField()
+    date_calculated = models.DateTimeField(auto_now_add=True)

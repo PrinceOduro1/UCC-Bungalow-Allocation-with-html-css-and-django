@@ -9,5 +9,6 @@ urlpatterns = [
     path('view_all_preferences/', views.view_all_preferences, name='view_all_preferences'),
     path('delete_building/<int:building_id>/', views.delete_building, name='delete_building'),
     path('senior_staff_form',views.senior_staff_app, name="senior_staff_form"),
-    path('all_users',views.view_all_users, name="view_all_users")
+    path('all_users',views.view_all_users, name="view_all_users"),
+    path('junior_staff_form',views.junior_staff, name="junior_staff")
 ]

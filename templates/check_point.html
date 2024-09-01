@@ -13,29 +13,64 @@
     <div class="sidebar">
         <h3>Hello Admin</h3>
         <ul>
-          <li><a href="{% url 'check_point' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-          <li><a href="{% url 'manage_buildings' %}"><i class="fas fa-building"></i> Manage Buildings</a></li>
-          <li><a href="{% url 'view_all_preferences' %}"><i class="fas fa-list-alt"></i> View Preferences</a></li>
-          <li><a href="{% url 'view_all_users' %}"><i class="fas fa-users"></i> View Users</a></li>
+            <li><a href="{% url 'check_point' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="{% url 'manage_buildings' %}"><i class="fas fa-building"></i> Manage Buildings</a></li>
+            <li><a href="{% url 'view_all_preferences' %}"><i class="fas fa-list-alt"></i> View Preferences</a></li>
+            <li><a href="{% url 'view_all_users' %}"><i class="fas fa-users"></i> View Users</a></li>
         </ul>
-      </div>
-    <h1>Assignment Results</h1>
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Staff Number</th>
-            <th>Total Points</th>
-            <th>Assigned Building</th>
-        </tr>
-        {% for result in results %}
-        <tr>
-            <td>{{ result.name }}</td>
-            <td>{{ result.staff_number }}</td>
-            <td>{{ result.total_points }}</td>
-            <td>{{ result.assigned_building }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-
+    </div>
+    <main>
+        <h1>Assignment Results</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Staff Number</th>
+                    <th>Total Points</th>
+                    <th>Assigned Building</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% with processed_staff_numbers="" %}
+                    {% for result in results %}
+                        {% if result.staff_number not in processed_staff_numbers %}
+                            {% if result.spouse_id %}
+                                {% with spouse_result=None %}
+                                    {% for r in results %}
+                                        {% if r.staff_number == result.spouse_id %}
+                                            {% with spouse_result=r %}
+                                                {% with combined_points=result.total_points|add:spouse_result.total_points %}
+                                                    <tr>
+                                                        <td>{{ result.name }} & {{ spouse_result.name }}</td>
+                                                        <td>{{ result.staff_number }} & {{ spouse_result.staff_number }}</td>
+                                                        <td>{{ combined_points }}</td>
+                                                        <td>{{ result.assigned_building }}</td>
+                                                    </tr>
+                                                {% endwith %}
+                                            {% endwith %}
+                                            {% with processed_staff_numbers=processed_staff_numbers|stringformat:"s,%s"|add:result.staff_number|stringformat:"s,%s"|add:spouse_result.staff_number %}
+                                            {% endwith %}
+                                            {% comment %} Break after processing the spouse {% endcomment %}
+                                            {% with break=True %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endwith %}
+                            {% else %}
+                                <tr>
+                                    <td>{{ result.name }}</td>
+                                    <td>{{ result.staff_number }}</td>
+                                    <td>{{ result.total_points }}</td>
+                                    <td>{{ result.assigned_building }}</td>
+                                </tr>
+                                {% with processed_staff_numbers=processed_staff_numbers|stringformat:"s,%s"|add:result.staff_number %}
+                                {% endwith %}
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+            </tbody>
+        </table>
+    </main>
 </body>
 </html>
