@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update Building</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/admin_manage.css' %}">
+    <link rel="stylesheet" href="{% static 'css/side.css' %}">
+</head>
+<body>
+    <h2>Update Building</h2>
+    <form action="{% url 'update_building' building.id %}" method="POST">
+        {% csrf_token %}
+        <div>
+            <label for="name">Building Name</label>
+            <input type="text" id="name" name="name" value="{{ building.name }}" required />
+        </div>
+        <div>
+            <label for="category">Building Category</label>
+            <select id="category" name="category" required>
+                <option value="senior_member" {% if building.category == 'senior_member' %}selected{% endif %}>Senior Member</option>
+                <option value="senior_staff" {% if building.category == 'senior_staff' %}selected{% endif %}>Senior Staff</option>
+                <option value="junior_staff" {% if building.category == 'junior_staff' %}selected{% endif %}>Junior Staff</option>
+            </select>
+        </div>
+        <div>
+            <label for="rent">Rent Charge</label>
+            <input type="number" id="rent" name="rent" value="{{ building.rent_charge }}" required />
+        </div>
+        <div>
+            <label for="Location">Building Location</label>
+            <input type="text" id="Location" name="Location" value="{{ building.location }}" required />
+        </div>
+        <div>
+            <label for="vacant_rooms">Number of Vacant Rooms</label>
+            <input type="number" id="vacant_rooms" name="vacant_rooms" value="{{ building.vacant_rooms }}" required />
+        </div>
+        <button type="submit">Update Building</button>
+    </form>
+</body>
+</html>

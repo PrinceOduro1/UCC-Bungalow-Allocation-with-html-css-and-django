@@ -84,3 +84,27 @@ body {
   .remove-button:hover {
     background-color: #c82333;
   }
+
+  /* Add some CSS for the update and remove buttons if needed */
+  .update-button, .remove-button {
+    margin: 5px;
+  }
+  .update-button {
+    background-color: green;
+    border: none;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .remove-button {
+    background-color: #f44336; /* Red */
+    color: white;
+  }
+  .update-form {
+    display: none;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    padding: 10px;
+  }

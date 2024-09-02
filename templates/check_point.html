@@ -31,46 +31,17 @@
                 </tr>
             </thead>
             <tbody>
-                {% with processed_staff_numbers="" %}
-                    {% for result in results %}
-                        {% if result.staff_number not in processed_staff_numbers %}
-                            {% if result.spouse_id %}
-                                {% with spouse_result=None %}
-                                    {% for r in results %}
-                                        {% if r.staff_number == result.spouse_id %}
-                                            {% with spouse_result=r %}
-                                                {% with combined_points=result.total_points|add:spouse_result.total_points %}
-                                                    <tr>
-                                                        <td>{{ result.name }} & {{ spouse_result.name }}</td>
-                                                        <td>{{ result.staff_number }} & {{ spouse_result.staff_number }}</td>
-                                                        <td>{{ combined_points }}</td>
-                                                        <td>{{ result.assigned_building }}</td>
-                                                    </tr>
-                                                {% endwith %}
-                                            {% endwith %}
-                                            {% with processed_staff_numbers=processed_staff_numbers|stringformat:"s,%s"|add:result.staff_number|stringformat:"s,%s"|add:spouse_result.staff_number %}
-                                            {% endwith %}
-                                            {% comment %} Break after processing the spouse {% endcomment %}
-                                            {% with break=True %}
-                                            {% endwith %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endwith %}
-                            {% else %}
-                                <tr>
-                                    <td>{{ result.name }}</td>
-                                    <td>{{ result.staff_number }}</td>
-                                    <td>{{ result.total_points }}</td>
-                                    <td>{{ result.assigned_building }}</td>
-                                </tr>
-                                {% with processed_staff_numbers=processed_staff_numbers|stringformat:"s,%s"|add:result.staff_number %}
-                                {% endwith %}
-                            {% endif %}
-                        {% endif %}
-                    {% endfor %}
-                {% endwith %}
+                {% for user in results %}
+                <tr>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.staff_number }}</td>
+                    <td>{{ user.total_points }}</td>
+                    <td>{{ user.assigned_building }}</td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
+        
     </main>
 </body>
 </html>
