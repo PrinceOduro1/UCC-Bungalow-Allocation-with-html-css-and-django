@@ -123,44 +123,131 @@
     
         <!-- Table for Senior Staff without Preferences -->
         <h2>Senior Staff</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Staff Number</th>
-                    <th>Name</th>
-                    <th>Department</th>
-                    <th>Mobile Number</th>
-                    <th>Date of University Appointment</th>
-                    <th>Present University Bungalow</th>
-                    <th>Date of Occupation of Accomodation</th>
-                    <th>Marital Status</th>
-                    <th>Number of Children</th>
-                    <th>Total Point</th>
-                    <th>Present Accomodation</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for staff in senior_staff %}
-                <tr>
-                    <td>{{ staff.staff_number }}</td>
-                    <td>{{ staff.name }}</td>
-                    <td>{{ staff.department }}</td>
-                    <td>{{ staff.mobile_no }}</td>
-                    <td>{{ staff.dateOf_Uni_Appointment }}</td>
-                    <td>{{ staff.presentUni_bungalow }}</td>
-                    <td>{{ staff.date_of_occupation_ofAccomodation }}</td>
-                    <td>{{ staff.marital_status }}</td>
-                    <td>{{ staff.num_of_children }}</td>
-                    <td>{{ staff.total_points }}</td>
-                    <td>{{ staff.present_accommodation }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3">No senior staff available</td>
-                </tr>
+<table id="seniorPreferencesTable">
+    <thead>
+        <tr>
+            <th>Staff Number</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Mobile Number</th>
+            <th>Date of University Appointment</th>
+            <th>Present University Bungalow</th>
+            <th>Date of Occupation of Accomodation</th>
+            <th>Marital Status</th>
+            <th>Number of Children</th>
+            <th>Total Points</th>
+            <th>Present Accomodation</th>
+            <th>Preferences</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for staff_number, details in senior_preferences_dict.items %}
+            {% with preferences=details.preferences %}
+                {% if preferences %}
+                    {% for preference in preferences %}
+                        <tr>
+                            {% if forloop.first %}
+                                <td rowspan="{{ details.preferences|length }}">{{ staff_number }}</td>
+                                <td rowspan="{{ details.preferences|length }}">{{ details.name }}</td>
+                                <td rowspan="{{ details.preferences|length }}">{{ details.department }}</td>
+                                <td rowspan="{{ details.preferences|length }}">{{ details.mobile_Number }}</td>
+                                <td rowspan="{{ details.preferences|length }}">{{ details.dateOf_Uni_Appointment }}</td>
+                                <td rowspan="{{ details.preferences|length }}">{{ details.presentUni_bungalow }}</td>
+                                <td rowspan="{{ details.preferences|length }}">{{ details.date_of_occupation_ofAccomodation }}</td>
+                                <td rowspan="{{ details.preferences|length }}">{{ details.marital_status }}</td>
+                                <td rowspan="{{ details.preferences|length }}">{{ details.num_of_children }}</td>
+                                <td rowspan="{{ details.preferences|length }}">{{ details.total_points }}</td>
+                                <td rowspan="{{ details.preferences|length }}">{{ details.present_accommodation }}</td>
+                            {% endif %}
+                            <td>{{ preference }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td>{{ staff_number }}</td>
+                        <td>{{ details.name }}</td>
+                        <td>{{ details.department }}</td>
+                        <td>{{ details.mobile_Number }}</td>
+                        <td>{{ details.dateOf_Uni_Appointment }}</td>
+                        <td>{{ details.presentUni_bungalow }}</td>
+                        <td>{{ details.date_of_occupation_ofAccomodation }}</td>
+                        <td>{{ details.marital_status }}</td>
+                        <td>{{ details.num_of_children }}</td>
+                        <td>{{ details.total_points }}</td>
+                        <td>{{ details.present_accommodation }}</td>
+                        <td>No preferences available</td>
+                    </tr>
+                {% endif %}
+            {% endwith %}
+        {% empty %}
+            <tr>
+                <td colspan="12">No staff data available</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    
+</table>
+
+<h2>Junior Staff</h2>
+<table id="juniorPreferencesTable">
+    <thead>
+        <tr>
+            <th>Staff Number</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Mobile Number</th>
+            <th>Date of University Appointment</th>
+            <th>Present University Bungalow</th>
+            <th>Marital Status</th>
+            <th>Number of Children</th>
+            <th>Total Points</th>
+            <th>Preferences</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for staff_number, details in junior_preferences_dict.items %}
+        {% with preferences=details.preferences %}
+            {% if preferences %}
+                {% for preference in preferences %}
+                    <tr>
+                        {% if forloop.first %}
+                            <td rowspan="{{ details.preferences|length }}">{{ staff_number }}</td>
+                            <td rowspan="{{ details.preferences|length }}">{{ details.name }}</td>
+                            <td rowspan="{{ details.preferences|length }}">{{ details.department }}</td>
+                            <td rowspan="{{ details.preferences|length }}">{{ details.mobile_Number }}</td>
+                            <td rowspan="{{ details.dateOf_Uni_Appointment }}</td>
+                            <td rowspan="{{ details.presentUni_bungalow }}</td>
+                            <td rowspan="{{ details.marital_status }}</td>
+                            <td rowspan="{{ details.num_of_children }}</td>
+                            <td rowspan="{{ details.total_points }}</td>
+                        {% endif %}
+                        <td>{{ preference }}</td>
+                    </tr>
                 {% endfor %}
-            </tbody>
-        </table>
+            {% else %}
+                <tr>
+                    <td>{{ staff_number }}</td>
+                    <td>{{ details.name }}</td>
+                    <td>{{ details.department }}</td>
+                    <td>{{ details.mobile_Number }}</td>
+                    <td>{{ details.dateOf_Uni_Appointment }}</td>
+                    <td>{{ details.presentUni_bungalow }}</td>
+                    <td>{{ details.marital_status }}</td>
+                    <td>{{ details.num_of_children }}</td>
+                    <td>{{ details.total_points }}</td>
+                    <td>No preferences available</td>
+                </tr>
+            {% endif %}
+        {% endwith %}
+    {% empty %}
+        <tr>
+            <td colspan="12">No staff data available</td>
+        </tr>
+    {% endfor %}
+</tbody>
+
+</table>
+
     </div>
 
     <script>

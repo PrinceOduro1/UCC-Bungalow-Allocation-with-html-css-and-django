@@ -35,37 +35,97 @@ def admin_manage_buildings(request):
 def view_all_users(request):
     applications = Appointment.objects.all()
     senior_staff = senior_staff_appointment.objects.all()
+    junior_staff = junior_staff_appointment.objects.all()
+    
+    # Fetch preferences for each category
     preferences = Preference.objects.select_related('application').all()
+    senior_preferences = Preference_senior_staff.objects.select_related('application').all()  
+    junior_preferences = Preference_junior_staff.objects.select_related('application').all()
 
-    # Create a dictionary to group preferences by staff number
+    # Create a dictionary to group preferences by staff number for each category
     preferences_dict = {}
+    senior_preferences_dict = {}
+    junior_preferences_dict = {}
+
+    # Populate preferences_dict for applications
+    for app in applications:
+        staff_number = app.staff_number
+        preferences_dict[staff_number] = {
+            'name': app.name,
+            'department': app.department,
+            'mobile_Number': app.mobile_no,
+            'dateOf_Uni_Appointment': app.dateOf_Uni_Appointment,
+            'presentUni_bungalow': app.presentUni_bungalow,
+            'date_of_occupation_ofAccomodation': app.date_of_occupation_ofAccomodation,
+            'studyLeave_from': app.studyLeave_from,
+            'studyLeave_to': app.studyLeave_to,
+            'marital_status': app.marital_status,
+            'spouse_id': app.spouse_id,
+            'duty_status': app.duty_status,
+            'duty_status_type': app.duty_status_type,
+            'num_of_children': app.num_of_children,
+            'date_of_duty': app.date_of_duty,
+            'present_accommodation': app.present_accommodation,
+            'preferences': []
+        }
+
+    # Add preferences to the applications' dictionary
     for pref in preferences:
         staff_number = pref.application.staff_number
-        if staff_number not in preferences_dict:
-            preferences_dict[staff_number] = {
-                'name': pref.application.name,
-                'department': pref.application.department,
-                'mobile_Number': pref.application.mobile_no,
-                'dateOf_Uni_Appointment': pref.application.dateOf_Uni_Appointment,
-                'presentUni_bungalow': pref.application.presentUni_bungalow,
-                'date_of_occupation_ofAccomodation': pref.application.date_of_occupation_ofAccomodation,
-                'studyLeave_from': pref.application.studyLeave_from,
-                'studyLeave_to': pref.application.studyLeave_to,
-                'marital_status': pref.application.marital_status,
-                'spouse_id': pref.application.spouse_id,
-                'duty_status': pref.application.duty_status,
-                'duty_status_type': pref.application.duty_status_type,
-                'num_of_children': pref.application.num_of_children,
-                'date_of_duty': pref.application.date_of_duty,
-                'present_accommodation': pref.application.present_accommodation,
-                'preferences': []
-            }
-        preferences_dict[staff_number]['preferences'].append(pref.preference)
+        if staff_number in preferences_dict:
+            preferences_dict[staff_number]['preferences'].append(pref.preference)
     
+    # Populate senior_preferences_dict for senior staff details
+    for staff in senior_staff:
+        staff_number = staff.staff_number
+        senior_preferences_dict[staff_number] = {
+            'name': staff.name,
+            'department': staff.department,
+            'mobile_Number': staff.mobile_no,
+            'dateOf_Uni_Appointment': staff.dateOf_Uni_Appointment,
+            'presentUni_bungalow': staff.presentUni_bungalow,
+            'date_of_occupation_ofAccomodation': staff.date_of_occupation_ofAccomodation,
+            'marital_status': staff.marital_status,
+            'num_of_children': staff.num_of_children,
+            'total_points': staff.total_points,
+            'present_accommodation': staff.present_accommodation,
+            'preferences': []
+        }
+
+    # Add preferences to the senior staff's dictionary
+    for pref in senior_preferences:
+        staff_number = pref.application.staff_number
+        if staff_number in senior_preferences_dict:
+            senior_preferences_dict[staff_number]['preferences'].append(pref.preference)
+    
+    # Populate junior_preferences_dict for junior staff details
+    for staff in junior_staff:
+        staff_number = staff.staff_number
+        junior_preferences_dict[staff_number] = {
+            'name': staff.name,
+            'department': staff.department,
+            'mobile_Number': staff.mobile_no,
+            'dateOf_Uni_Appointment': staff.dateOf_Uni_Appointment,
+            'presentUni_bungalow': staff.presentUni_bungalow,
+            'marital_status': staff.marital_status,
+            'num_of_children': staff.num_of_children,
+            'total_points': staff.total_points,
+            'preferences': []
+        }
+
+    # Add preferences to the junior staff's dictionary
+    for pref in junior_preferences:
+        staff_number = pref.application.staff_number
+        if staff_number in junior_preferences_dict:
+            junior_preferences_dict[staff_number]['preferences'].append(pref.preference)
+
     return render(request, 'all_users.html', {
         'applications': applications,
         'senior_staff': senior_staff,
-        'preferences_dict': preferences_dict
+        'junior_staff': junior_staff,
+        'preferences_dict': preferences_dict,
+        'senior_preferences_dict': senior_preferences_dict,
+        'junior_preferences_dict': junior_preferences_dict
     })
 
 
