@@ -518,7 +518,7 @@ def senior_staff_app(request):
             preference_text = request.POST.get(f'preference_{i}')
             print(f"Preference {i}: {preference_text}")  # Debugging output
             if preference_text:
-                Preference_senior_staff.objects.create(application=senior_staff_appointment, preference=preference_text)
+                Preference_senior_staff.objects.create(application=appointment, preference=preference_text)
                 preferences_saved += 1
         
         print(f"Total Preferences Saved: {preferences_saved}")
@@ -624,7 +624,7 @@ def junior_staff(request):
             print(f"Preference {i}: {preference_text}")  # Debugging output
             print(junior_staff_appointment)
             if preference_text:
-                Preference_junior_staff.objects.create(application=junior_staff_appointment, preference=preference_text)
+                Preference_junior_staff.objects.create(application=appointment, preference=preference_text)
                 preferences_saved += 1
         
         print(f"Total Preferences Saved: {preferences_saved}")
