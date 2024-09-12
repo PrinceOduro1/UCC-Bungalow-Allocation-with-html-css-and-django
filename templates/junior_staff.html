@@ -134,8 +134,8 @@
                 <div class="tab-pane fade" id="university-info">
                     <h3>Section 2: University Information</h3>
                     <div class="form-group">
-                        <label for="staff_number">Staff Number</label>
-                        <input type="text" id="staff_number" name="staff_number" class="form-control" value="{{ request.POST.staff_number }}" required>
+                        <label for="staff_number">Staff Number: Start with js followed by id</label>
+                        <input type="text" id="staff_number" name="staff_number" class="form-control" value="{{ request.POST.staff_number }}" placeholder="e.g. js000101" required>
                     </div>
                     <div class="form-group">
                         <label for="department">Department</label>
@@ -158,7 +158,7 @@
                 <div class="tab-pane fade" id="marital-info">
                     <h3>Section 4: Marital Information</h3>
                     <div class="form-group">
-                        <label for="marital_status">Marital Status</label><br>
+                        <label for="marital_status">Marital Status: You can enter spouse id if you have same status and want to apply together</label><br>
                         <input type="radio" id="married" name="marital_status" value="married" {% if form.married.value %}checked{% endif %}>
                         <label for="married">Married</label>
                 

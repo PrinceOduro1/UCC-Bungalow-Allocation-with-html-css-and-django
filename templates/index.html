@@ -191,8 +191,8 @@
                 <div class="tab-pane fade" id="university-info">
                     <h3>Section 2: University Information</h3>
                     <div class="form-group">
-                        <label for="staff_number">Staff Number</label>
-                        <input type="text" id="staff_number" name="staff_number" class="form-control" value="{{ request.POST.staff_number }}" required>
+                        <label for="staff_number">Staff Number: Start with sm followed by id</label>
+                        <input type="text" id="staff_number" name="staff_number" class="form-control" value="{{ request.POST.staff_number }}" placeholder="e.g. sm00010" required>
                     </div>
                     <div class="form-group">
                         <label for="department">Department</label>
@@ -222,8 +222,8 @@
                         <input type="date" id="study_leaveTo" name="study_leaveTo" class="form-control">
                     </div>
                     <div class="form-group">
-                        <label for="duty_status">Duty Status:</label><br>
-                        <input type="checkbox" id="duty_status" name="duty_status" {% if form.duty_status.value %}checked{% endif %}>
+                        <label for="duty_status">Duty Status: Check box if you have a special duty e.g. Dean</label><br>
+                        <input type="checkbox" id="duty_status" name="duty_status" placeholder="e.g. Dean" {% if form.duty_status.value %}checked{% endif %}>
                         <label for="duty_status">Duty Status</label>
                     </div>
                     <div id="duty_status_input" class="form-group">
@@ -242,7 +242,7 @@
                 <div class="tab-pane fade" id="marital-info">
                     <h3>Section 4: Marital Information</h3>
                     <div class="form-group">
-                        <label for="marital_status">Marital Status</label><br>
+                        <label for="marital_status">Marital Status: You can enter spouse id if you have same status and want to apply together</label><br>
                         <input type="radio" id="married" name="marital_status" value="married" {% if form.married.value %}checked{% endif %}>
                         <label for="married">Married</label>
                 
