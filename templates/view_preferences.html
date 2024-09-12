@@ -10,60 +10,63 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   </head>
   <body>
-    <div class="sidebar">
-      <h3>Hello Admin</h3>
-      <ul>
-        <li><a href="{% url 'check_point' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-        <li><a href="{% url 'manage_buildings' %}"><i class="fas fa-building"></i> Manage Buildings</a></li>
-        <li><a href="{% url 'view_all_preferences' %}"><i class="fas fa-list-alt"></i> View Preferences</a></li>
-        <li><a href="{% url 'view_all_users' %}"><i class="fas fa-users"></i> View Users</a></li>
-      </ul>
-    </div>
-    <div class="search-container">
-      <input
-        type="text"
-        id="searchInput"
-        placeholder="Search by name..."
-        onkeyup="filterTable()"
-      />
-    </div>
-    <div class="table-container">
-      <div class="print-container">
-        <button onclick="printTable()">Print to PDF</button>
+    <div class="wrapper">
+      <div class="sidebar">
+        <h3>Hello Admin</h3>
+        <ul>
+          <li><a href="{% url 'check_point' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="{% url 'manage_buildings' %}"><i class="fas fa-building"></i> Manage Buildings</a></li>
+          <li><a href="{% url 'view_all_preferences' %}"><i class="fas fa-list-alt"></i> View Preferences</a></li>
+          <li><a href="{% url 'view_all_users' %}"><i class="fas fa-users"></i> View Users</a></li>
+        </ul>
       </div>
-      <h2>All Preferences Grouped by Staff</h2>
-      <table id="preferencesTable">
-        <thead>
-          <tr>
-            <th>Staff Number</th>
-            <th>Name</th>
-            <th>Department</th>
-            <th>Preferences</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for staff_number, details in preferences_dict.items %}
-            {% with preferences=details.preferences %}
-              {% for preference in preferences %}
+      <div class="pref_container">
+        <div class="search-container">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by name..."
+            onkeyup="filterTable()"
+          />
+        </div>
+        <div class="table-container">
+          <div class="print-container">
+            <button onclick="printTable()">Print to PDF</button>
+          </div>
+          <h2>All Preferences Grouped by Staff</h2>
+          <table id="preferencesTable">
+            <thead>
+              <tr>
+                <th>Staff Number</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Preferences</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for staff_number, details in preferences_dict.items %}
+                {% with preferences=details.preferences %}
+                  {% for preference in preferences %}
+                    <tr>
+                      {% if forloop.first %}
+                        <td rowspan="{{ preferences|length }}">{{ staff_number }}</td>
+                        <td rowspan="{{ preferences|length }}">{{ details.name }}</td>
+                        <td rowspan="{{ preferences|length }}">{{ details.department }}</td>
+                      {% endif %}
+                      <td>{{ preference }}</td>
+                    </tr>
+                  {% endfor %}
+                {% endwith %}
+              {% empty %}
                 <tr>
-                  {% if forloop.first %}
-                    <td rowspan="{{ preferences|length }}">{{ staff_number }}</td>
-                    <td rowspan="{{ preferences|length }}">{{ details.name }}</td>
-                    <td rowspan="{{ preferences|length }}">{{ details.department }}</td>
-                  {% endif %}
-                  <td>{{ preference }}</td>
+                  <td colspan="4">No preferences available</td>
                 </tr>
               {% endfor %}
-            {% endwith %}
-          {% empty %}
-            <tr>
-              <td colspan="4">No preferences available</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-
     <script>
       function filterTable() {
         var input, filter, table, tr, td, i, txtValue;
